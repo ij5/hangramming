@@ -18,6 +18,13 @@ pub fn parse(input: &str){
                 NumType::Int(n) => println!("{}", n),
               }
             },
+            Node::Bool(b) => {
+              if b {
+                println!("참");
+              }else{
+                println!("거짓");
+              }
+            },
             _ => {},
         };
       },

@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use crate::ast::{OpCode, Expr};
+use crate::ast::{OpCode, Expr, CompOpCode};
 
 #[LALR]
 grammar;
@@ -9,6 +9,7 @@ pub Program: Box<Expr> = {
 };
 
 Comparison: Box<Expr> = {
+  <l:Comparison> r"이|가" <r:Expr> <o:CompOp> => Box::new(Expr::CompOp(l, o, r)),
   Expr,
 };
 
@@ -26,6 +27,15 @@ Term: Box<Expr> = {
   <n:Int> => Box::new(Expr::Int(n)),
   <n:Float> => Box::new(Expr::Float(n)),
   "(" <e:Expr> ")" => e,
+};
+
+CompOp: CompOpCode = {
+  r"과|와" "같으면" => CompOpCode::Eq,
+  r"과|와" "다르면" => CompOpCode::NotEq,
+  "보다" "크면" => CompOpCode::Gt,
+  "보다" "작으면" => CompOpCode::Lt,
+  "보다" "크거나" "같으면" => CompOpCode::GtE,
+  "보다" "작거나" "같으면" => CompOpCode::LtE,
 };
 
 ExprOp: OpCode = {
@@ -49,3 +59,28 @@ Comment: () = {
   <c:r"//[^\n\r]*[\n\r]*"> => {},
   <c:r"/\*([^\*]*\*+[^\*/])*([^\*]*\*+|[^\*])*\*/"> => {},
 };
+
+match{
+  r"이|가",
+  r"과|와",
+  "(",
+  ")",
+  "같으면",
+  "다르면",
+  "보다",
+  "크면",
+  "작으면",
+  "크거나",
+  "작거나",
+  "더하기",
+  "빼기",
+  "곱하기",
+  "나누기",
+
+}else{
+  r"[_a-zA-Zㄱ-ㅎ가-힣][_a-zA-Z0-9ㄱ-ㅎ가-힣]*",
+  r"//[^\n\r]*[\n\r]*",
+  r"/\*([^\*]*\*+[^\*/])*([^\*]*\*+|[^\*])*\*/",
+  r"[0-9]+\.[0-9]+",
+  r"[0-9]+",
+}

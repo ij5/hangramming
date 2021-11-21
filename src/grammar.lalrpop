@@ -4,8 +4,20 @@ use crate::ast::{OpCode, Expr, CompOpCode};
 #[LALR]
 grammar;
 
-pub Program: Box<Expr> = {
-  Comparison,
+pub Program: Vec<Box<Expr>> = {
+  Stmt,
+};
+
+Stmt: Vec<Box<Expr>> = {
+  <s:Stmt> <e:Comparison> => {
+    let mut v = s.clone();
+    v.push(e);
+    s
+  },
+  <e:Comparison> => {
+    let v = vec![e];
+    v
+  },
 };
 
 Comparison: Box<Expr> = {

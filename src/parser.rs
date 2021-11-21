@@ -1,3 +1,5 @@
+use crate::INTP_MODE;
+
 #[allow(unused_imports)]
 use super::lalrpop_util;
 
@@ -10,8 +12,9 @@ pub fn parse(input: &str){
   let result = grammar::ProgramParser::new().parse(input);
   match result {
       Ok(value) => {
-        let res = parse_expr(*value);
-        match res {
+        for v in value {
+          let res = parse_expr(*v);
+          match res {
             Node::Num(n) => {
               match n {
                 NumType::Float(n) => println!("{}", n),
@@ -26,6 +29,7 @@ pub fn parse(input: &str){
               }
             },
             _ => {},
+          };
         };
       },
       Err(e) => println!("{:?}", e),
@@ -80,7 +84,16 @@ fn parse_fn_call(s: String, p: Vec<Box<Expr>>) -> Node {
       }
       Node::Null
     },
-    _ => panic!("알 수 없는 함수 이름임")
+    _ => {
+      unsafe {
+        if INTP_MODE {
+          println!("알 수 없는 함수 이름임.");
+        }else{
+          panic!("알 수 없는 함수 이름임.");
+        }
+      }
+      Node::Null
+    }
   }
 }
 
@@ -96,7 +109,16 @@ fn parse_op(l: Expr, o: OpCode, r: Expr) -> Node {
         (NumType::Int(i1), NumType::Int(i2)) => (i1 as f32, i2 as f32),
       }
     },
-    _ => panic!("연산은 숫자만 가능합니다."),
+    _ => {
+      unsafe {
+        if INTP_MODE {
+          println!("연산은 숫자만 가능합니다.");
+          return Node::Null;
+        }else{
+          panic!("연산은 숫자만 가능합니다.");
+        }
+      }
+    },
   };
 
   match o {
@@ -126,7 +148,14 @@ fn parse_op(l: Expr, o: OpCode, r: Expr) -> Node {
     },
     OpCode::Div => {
       if right_value == 0.0 {
-        panic!("0으로 나눌 수 없습니다.")
+        unsafe {
+          if INTP_MODE {
+            println!("0으로 나눌 수 없습니다.");
+            return Node::Null;
+          }else{
+            panic!("0으로 나눌 수 없습니다.");
+          }
+        }
       }
       let result = left_value / right_value;
       if result.fract() == 0.0 {
@@ -150,7 +179,16 @@ fn parse_comp_op(l: Expr, o: CompOpCode, r: Expr) -> Node {
         (NumType::Int(i1), NumType::Int(i2)) => (i1 as f32, i2 as f32),
       }
     },
-    _ => panic!("연산은 숫자만 가능합니다."),
+    _ => {
+      unsafe {
+        if INTP_MODE {
+          println!("연산은 숫자만 가능합니다.");
+          return Node::Null;
+        }else{
+          panic!("연산은 숫자만 가능합니다.");
+        }
+      }
+    },
   };
 
   match o {

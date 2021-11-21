@@ -1,5 +1,6 @@
 
-#[derive(Debug, Clone, Copy)]
+#[allow(dead_code)]
+#[derive(Debug, Clone)]
 pub enum Expr {
   Int(i32),
   Float(f32),

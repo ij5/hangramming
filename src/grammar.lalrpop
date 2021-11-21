@@ -11,6 +11,7 @@ pub Program: Box<Expr> = {
 Comparison: Box<Expr> = {
   <l:Comparison> r"이|가" <r:Expr> <o:CompOp> => Box::new(Expr::CompOp(l, o, r)),
   Expr,
+  FnCall,
 };
 
 FnCall: Box<Expr> = {
@@ -27,7 +28,7 @@ Parameters: Vec<Box<Expr>> = {
     let mut v:Vec<Box<Expr>> = vec![];
     v.push(l);
     for i in &r {
-      v.push(Box::new(*i.1));
+      v.push(Box::new(*i.1.clone()));
     }
     v
   }

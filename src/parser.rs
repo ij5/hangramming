@@ -49,10 +49,38 @@ fn parse_expr(expr: Expr) -> Node {
   match expr {
       Expr::Int(n) => Node::Num(NumType::Int(n)),
       Expr::Float(n) => Node::Num(NumType::Float(n)),
-      Expr::FnCall(f, a) => Node::Null,
+      Expr::FnCall(f, a) => parse_fn_call(f, a),
       Expr::CompOp(l, o, r) => parse_comp_op(*l, o, *r),
       Expr::Op(l, o, r) => parse_op(*l, o, *r),
       Expr::Null => Node::Null,
+  }
+}
+
+fn parse_fn_call(s: String, p: Vec<Box<Expr>>) -> Node {
+  match s.as_str() {
+    "출력" => {
+      for i in p {
+        let exp = parse_expr(*i);
+        match exp {
+          Node::Num(n) => {
+            match n {
+              NumType::Float(f) => println!("{}", f),
+              NumType::Int(a) => println!("{}", a),
+            }
+          },
+          Node::Bool(b) => {
+            if b {
+              println!("참");
+            }else{
+              println!("거짓");
+            }
+          }
+          Node::Null => println!("없음"),
+        }
+      }
+      Node::Null
+    },
+    _ => panic!("알 수 없는 함수 이름임")
   }
 }
 

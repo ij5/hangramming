@@ -3,6 +3,7 @@ extern crate lalrpop_util;
 
 mod parser;
 mod ast;
+mod functions;
 
 use std::io::Write;
 #[allow(unused_imports)]

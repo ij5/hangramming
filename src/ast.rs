@@ -1,6 +1,5 @@
 
-#[derive(Debug, Clone)]
-#[allow(dead_code)]
+#[derive(Debug, Clone, Copy)]
 pub enum Expr {
   Int(i32),
   Float(f32),
@@ -11,7 +10,7 @@ pub enum Expr {
 }
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum OpCode {
   Mul,
   Div,
@@ -19,7 +18,7 @@ pub enum OpCode {
   Sub,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 #[allow(dead_code)]
 pub enum CompOpCode {
   Eq,

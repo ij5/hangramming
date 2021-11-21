@@ -13,6 +13,26 @@ Comparison: Box<Expr> = {
   Expr,
 };
 
+FnCall: Box<Expr> = {
+  <n:Identifier> "(" <p:(Parameters)?> ")" => {
+    match p {
+      Some(pp) => Box::new(Expr::FnCall(n, pp)),
+      None => Box::new(Expr::FnCall(n, vec![])),
+    }
+  },
+};
+
+Parameters: Vec<Box<Expr>> = {
+  <l:Comparison> <r:("," Comparison)*> => {
+    let mut v:Vec<Box<Expr>> = vec![];
+    v.push(l);
+    for i in &r {
+      v.push(Box::new(*i.1));
+    }
+    v
+  }
+};
+
 Expr: Box<Expr> = {
   <l:Expr> <o:ExprOp> <r:Factor> => Box::new(Expr::Op(l, o, r)),
   Factor,
@@ -76,7 +96,7 @@ match{
   "빼기",
   "곱하기",
   "나누기",
-
+  ",",
 }else{
   r"[_a-zA-Zㄱ-ㅎ가-힣][_a-zA-Z0-9ㄱ-ㅎ가-힣]*",
   r"//[^\n\r]*[\n\r]*",

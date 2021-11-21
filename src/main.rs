@@ -4,6 +4,7 @@ extern crate lalrpop_util;
 mod parser;
 mod ast;
 mod functions;
+mod vm;
 
 static mut INTP_MODE: bool = true;
 

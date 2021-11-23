@@ -10,6 +10,12 @@ pub enum Expr {
   Null
 }
 
+#[derive(Debug, Clone)]
+pub enum Stmt {
+  VarDec(String, Box<Expr>),
+  Expr(Box<Expr>),
+}
+
 
 #[derive(Debug, Clone, Copy)]
 pub enum OpCode {

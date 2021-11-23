@@ -1,29 +1,39 @@
 use std::str::FromStr;
-use crate::ast::{OpCode, Expr, CompOpCode};
+use crate::ast::{OpCode, Expr, CompOpCode, Stmt};
 
 #[LALR]
 grammar;
 
-pub Program: Vec<Box<Expr>> = {
+pub Program: Vec<Box<Stmt>> = {
   Stmt,
 };
 
-Stmt: Vec<Box<Expr>> = {
-  <s:Stmt> <e:Comparison> => {
+Stmt: Vec<Box<Stmt>> = {
+  <s:Stmt> <e:Comparison> "ㄱ" => {
     let mut v = s.clone();
-    v.push(e);
-    s
-  },
-  <e:Comparison> => {
-    let v = vec![e];
+    v.push(Box::new(Stmt::Expr(e)));
     v
   },
+  <e:Comparison> "ㄱ" => {
+    let v = vec![Box::new(Stmt::Expr(e))];
+    v
+  },
+  <v:VarDec> "ㄱ" => {
+    let ve = vec![v];
+    ve
+  }
+};
+
+VarDec: Box<Stmt> = {
+  "[" <i:Identifier> "]" r"=|는|은" <e:Expr> => {
+    Box::new(Stmt::VarDec(i, e))
+  }
 };
 
 Comparison: Box<Expr> = {
-  <l:Comparison> r"이|가" <r:Expr> <o:CompOp> => Box::new(Expr::CompOp(l, o, r)),
   Expr,
   FnCall,
+  <l:Comparison> r"이|가" <r:Expr> <o:CompOp> => Box::new(Expr::CompOp(l, o, r)),
 };
 
 FnCall: Box<Expr> = {
@@ -110,6 +120,11 @@ match{
   "곱하기",
   "나누기",
   ",",
+  "[",
+  "]",
+  r"=|는|은",
+  "ㄱ",
+  "ㄴ",
 }else{
   r"[_a-zA-Zㄱ-ㅎ가-힣][_a-zA-Z0-9ㄱ-ㅎ가-힣]*",
   r"//[^\n\r]*[\n\r]*",

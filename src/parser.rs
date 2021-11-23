@@ -1,4 +1,7 @@
 use crate::INTP_MODE;
+use crate::ast::Stmt;
+
+use std::collections::HashMap;
 
 #[allow(unused_imports)]
 use super::lalrpop_util;
@@ -10,42 +13,63 @@ use super::ast::{Expr, OpCode, CompOpCode};
 #[allow(unused_variables)]
 pub fn parse(input: &str){
   let result = grammar::ProgramParser::new().parse(input);
+  let mut variables = HashMap::new();
   match result {
-      Ok(value) => {
-        for v in value {
-          let res = parse_expr(*v);
-          match res {
-            Node::Num(n) => {
-              match n {
-                NumType::Float(n) => println!("{}", n),
-                NumType::Int(n) => println!("{}", n),
-              }
-            },
-            Node::Bool(b) => {
-              if b {
-                println!("참");
-              }else{
-                println!("거짓");
-              }
-            },
-            _ => {},
-          };
-        };
-      },
-      Err(e) => println!("{:?}", e),
+    Ok(value) => {
+      for v in value {
+        let result = parse_stmt(*v);
+        match result {
+          Node::Var(s) => {
+            variables.insert(s.name, s.value);
+          }
+          _ => {}
+        }
+      }
+    },
+    Err(e) => println!("{:?}", e),
   }
 
 }
 
+#[derive(Debug)]
 enum Node {
   Num(NumType),
   Bool(bool),
+  Var(Variable),
   Null,
 }
 
+#[derive(Debug)]
+struct Variable {
+  name: String,
+  value: Box<Node>,
+}
+
+#[derive(Debug)]
 enum NumType {
   Int(i32),
   Float(f32),
+}
+
+fn parse_stmt(stmt: Stmt) -> Node {
+  match stmt {
+    Stmt::Expr(e) => {
+      let result = parse_expr(*e);
+      result
+    }
+    Stmt::VarDec(s, v) => {
+      let result = parse_vardec(s, v);
+      result
+    }
+  }
+}
+
+fn parse_vardec(s: String, v: Box<Expr>) -> Node {
+  let result = parse_expr(*v);
+  Node::Var(Variable {
+    name: s,
+    value: Box::new(result),
+  })
 }
 
 #[allow(unused_variables)]
@@ -78,7 +102,10 @@ fn parse_fn_call(s: String, p: Vec<Box<Expr>>) -> Node {
             }else{
               println!("거짓");
             }
-          }
+          },
+          Node::Var(v) => {
+            println!("{:?}", v.value)
+          },
           Node::Null => println!("없음"),
         }
       }

@@ -19,7 +19,7 @@ pub fn parse(input: &str){
       for v in value {
         let result = parse_stmt(*v);
         match result {
-          Node::Var(s) => {
+          Node::VarDec(s) => {
             variables.insert(s.name, s.value);
           }
           _ => {}
@@ -35,7 +35,7 @@ pub fn parse(input: &str){
 enum Node {
   Num(NumType),
   Bool(bool),
-  Var(Variable),
+  VarDec(Variable),
   Null,
 }
 
@@ -66,7 +66,7 @@ fn parse_stmt(stmt: Stmt) -> Node {
 
 fn parse_vardec(s: String, v: Box<Expr>) -> Node {
   let result = parse_expr(*v);
-  Node::Var(Variable {
+  Node::VarDec(Variable {
     name: s,
     value: Box::new(result),
   })
@@ -103,10 +103,8 @@ fn parse_fn_call(s: String, p: Vec<Box<Expr>>) -> Node {
               println!("거짓");
             }
           },
-          Node::Var(v) => {
-            println!("{:?}", v.value)
-          },
           Node::Null => println!("없음"),
+          _ => {},
         }
       }
       Node::Null

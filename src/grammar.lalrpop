@@ -14,6 +14,11 @@ Stmt: Vec<Box<Stmt>> = {
     v.push(Box::new(Stmt::Expr(e)));
     v
   },
+  <s:Stmt> <v:VarDec> "ㄱ" => {
+    let mut ve = s.clone();
+    ve.push(v);
+    ve
+  },
   <e:Comparison> "ㄱ" => {
     let v = vec![Box::new(Stmt::Expr(e))];
     v
@@ -25,7 +30,10 @@ Stmt: Vec<Box<Stmt>> = {
 };
 
 VarDec: Box<Stmt> = {
-  "[" <i:Identifier> "]" r"=|는|은" <e:Expr> => {
+  <i:Identifier> "=" <e:Expr> => {
+    Box::new(Stmt::VarDec(i, e))
+  },
+  <i:Identifier> r"는|은" <e:Expr> => {
     Box::new(Stmt::VarDec(i, e))
   }
 };
@@ -33,7 +41,8 @@ VarDec: Box<Stmt> = {
 Comparison: Box<Expr> = {
   Expr,
   FnCall,
-  <l:Comparison> r"이|가" <r:Expr> <o:CompOp> => Box::new(Expr::CompOp(l, o, r)),
+  <l:Comparison> r"이|가" <r:Expr> <o:CompOpHan> => Box::new(Expr::CompOp(l, o, r)),
+  <l:Comparison> <o:CompOp> <r:Expr> => Box::new(Expr::CompOp(l, o, r)),
 };
 
 FnCall: Box<Expr> = {
@@ -72,13 +81,22 @@ Term: Box<Expr> = {
   "(" <e:Expr> ")" => e,
 };
 
-CompOp: CompOpCode = {
+CompOpHan: CompOpCode = {
   r"과|와" "같으면" => CompOpCode::Eq,
   r"과|와" "다르면" => CompOpCode::NotEq,
   "보다" "크면" => CompOpCode::Gt,
   "보다" "작으면" => CompOpCode::Lt,
   "보다" "크거나" "같으면" => CompOpCode::GtE,
   "보다" "작거나" "같으면" => CompOpCode::LtE,
+};
+
+CompOp: CompOpCode = {
+  "=" "=" => CompOpCode::Eq,
+  "!" "=" => CompOpCode::NotEq,
+  "<" "=" => CompOpCode::GtE,
+  ">" "=" => CompOpCode::LtE,
+  ">" => CompOpCode::Gt,
+  "<" => CompOpCode::Lt,
 };
 
 ExprOp: OpCode = {
@@ -92,7 +110,7 @@ FactorOp: OpCode = {
   "나누기" => OpCode::Div,
 };
 
-Identifier: String = <s:r"[_a-zA-Zㄱ-ㅎ가-힣][_a-zA-Z0-9ㄱ-ㅎ가-힣]*"> => String::from(s);
+Identifier: String = <s:r"[_a-zA-Zㄷ-ㅎㅏ-ㅣ가-힣][_a-zA-Z0-9ㄷ-ㅎㅏ-ㅣ가-힣]*"> => String::from(s);
 
 Int: i32 = <s:r"[0-9]+"> => i32::from_str(s).unwrap();
 
@@ -122,11 +140,15 @@ match{
   ",",
   "[",
   "]",
-  r"=|는|은",
+  r"는|은",
   "ㄱ",
   "ㄴ",
+  "=",
+  "!",
+  "<",
+  ">",
 }else{
-  r"[_a-zA-Zㄱ-ㅎ가-힣][_a-zA-Z0-9ㄱ-ㅎ가-힣]*",
+  r"[_a-zA-Zㄷ-ㅎㅏ-ㅣ가-힣][_a-zA-Z0-9ㄷ-ㅎㅏ-ㅣ가-힣]*",
   r"//[^\n\r]*[\n\r]*",
   r"/\*([^\*]*\*+[^\*/])*([^\*]*\*+|[^\*])*\*/",
   r"[0-9]+\.[0-9]+",

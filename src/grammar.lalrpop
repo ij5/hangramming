@@ -33,15 +33,11 @@ VarDec: Box<Stmt> = {
   <i:Identifier> "=" <e:Expr> => {
     Box::new(Stmt::VarDec(i, e))
   },
-  <i:Identifier> r"는|은" <e:Expr> => {
-    Box::new(Stmt::VarDec(i, e))
-  }
 };
 
 Comparison: Box<Expr> = {
   Expr,
   FnCall,
-  <l:Comparison> r"이|가" <r:Expr> <o:CompOpHan> => Box::new(Expr::CompOp(l, o, r)),
   <l:Comparison> <o:CompOp> <r:Expr> => Box::new(Expr::CompOp(l, o, r)),
 };
 
@@ -78,6 +74,7 @@ Factor: Box<Expr> = {
 Term: Box<Expr> = {
   <n:Int> => Box::new(Expr::Int(n)),
   <n:Float> => Box::new(Expr::Float(n)),
+  <i:Identifier> => Box::new(Expr::Var(i)),
   "(" <e:Expr> ")" => e,
 };
 
@@ -100,12 +97,22 @@ CompOp: CompOpCode = {
 };
 
 ExprOp: OpCode = {
+  "+" => OpCode::Add,
+  "-" => OpCode::Sub,
+};
+
+ExprOpHan: OpCode = {
   "더하기" => OpCode::Add,
   "빼기" => OpCode::Sub,
 };
 
 
 FactorOp: OpCode = {
+  "*" => OpCode::Mul,
+  "/" => OpCode::Div,
+};
+
+FactorOpHan: OpCode = {
   "곱하기" => OpCode::Mul,
   "나누기" => OpCode::Div,
 };
@@ -147,6 +154,10 @@ match{
   "!",
   "<",
   ">",
+  "*",
+  "/",
+  "+",
+  "-"
 }else{
   r"[_a-zA-Zㄷ-ㅎㅏ-ㅣ가-힣][_a-zA-Z0-9ㄷ-ㅎㅏ-ㅣ가-힣]*",
   r"//[^\n\r]*[\n\r]*",

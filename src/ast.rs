@@ -1,4 +1,3 @@
-
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum Expr {
@@ -7,6 +6,7 @@ pub enum Expr {
   Op(Box<Expr>, OpCode, Box<Expr>),
   CompOp(Box<Expr>, CompOpCode, Box<Expr>),
   FnCall(String, Vec<Box<Expr>>),
+  Var(String),
   Null
 }
 
